@@ -6,7 +6,7 @@ All notable changes to `Cerberus Vault Client` will be documented in this file. 
 
 - `1.0.x` Releases - [1.0.0](#100)
 
-## [1.0.0](https://github.com/Nike-Inc/vault-java-client/releases/tag/vault-java-client-v1.0.0)
+## [1.0.0](https://github.com/Nike-Inc/java-vault-client/releases/tag/java-vault-client-v1.0.0)
 
 Released on 2016-11-28.
 

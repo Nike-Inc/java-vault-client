@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/nike/maven/vault-client/images/download.svg) ](https://bintray.com/nike/maven/vault-client/_latestVersion)
 [![][travis img]][travis]
-[![Code Coverage](https://img.shields.io/codecov/c/github/Nike-Inc/vault-java-client/master.svg)](https://codecov.io/github/Nike-Inc/vault-java-client?branch=master)
+[![Code Coverage](https://img.shields.io/codecov/c/github/Nike-Inc/java-vault-client/master.svg)](https://codecov.io/github/Nike-Inc/java-vault-client?branch=master)
 [![][license img]][license]
 
 <a name="overview"></a>
@@ -116,8 +116,8 @@ Vault client is a small project. It only has a few classes and they are all full
 
 Vault client is released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
-[travis]:https://travis-ci.org/Nike-Inc/vault-java-client
-[travis img]:https://api.travis-ci.org/Nike-Inc/vault-java-client.svg?branch=master
+[travis]:https://travis-ci.org/Nike-Inc/java-vault-client
+[travis img]:https://api.travis-ci.org/Nike-Inc/java-vault-client.svg?branch=master
 
 [license]:LICENSE.txt
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
