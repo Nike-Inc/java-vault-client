@@ -14,8 +14,8 @@ subprojects {
                 artifactId artifactId
                 version version
                 name artifactId
-                description "Fastbreak - A Simple Java 8 Native Circuit Breaker"
-                url 'https://github.com/Nike-Inc/fastbreak'
+                description "Vault Client"
+                url 'https://github.com/Nike-Inc/java-vault-client'
                 inceptionYear '2016'
                 licenses {
                     license {
@@ -25,14 +25,8 @@ subprojects {
                     }
                 }
                 scm {
-                    url 'https://github.com/Nike-Inc/fastbreak'
-                    connection 'git@github.com:Nike-Inc/fastbreak.git'
-                }
-                developers {
-                    developer {
-                        id 'nicmunroe'
-                        name 'Nic Munroe'
-                    }
+                    url 'https://github.com/Nike-Inc/java-vault-client'
+                    connection 'git@github.com:Nike-Inc/java-vault-client.git'
                 }
                 organization {
                     name 'Nike'
@@ -68,13 +62,13 @@ subprojects {
         publications = ['mavenInfo']
         pkg {
             repo = 'maven'
-            name = 'fastbreak'
+            name = 'vault-client'
             userOrg = 'nike'
             licenses = ['Apache-2.0']
-            websiteUrl = 'https://github.com/Nike-Inc/fastbreak'
-            issueTrackerUrl = 'https://github.com/Nike-Inc/fastbreak/issues'
-            vcsUrl = 'https://github.com/Nike-Inc/fastbreak.git'
-            githubRepo = 'Nike-Inc/fastbreak'
+            websiteUrl = 'https://github.com/Nike-Inc/java-vault-client'
+            issueTrackerUrl = 'https://github.com/Nike-Inc/java-vault-client/issues'
+            vcsUrl = 'https://github.com/Nike-Inc/java-vault-client.git'
+            githubRepo = 'Nike-Inc/java-vault-client'
             githubReleaseNotesFile = 'CHANGELOG.md'
 
             version {
