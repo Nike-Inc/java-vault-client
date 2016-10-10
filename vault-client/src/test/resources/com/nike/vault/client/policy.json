@@ -1,0 +1,3 @@
+{
+  "rules": "key \"vault\" {policy = \"write\"}"
+}

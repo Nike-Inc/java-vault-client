@@ -1,0 +1,10 @@
+{
+  "data": {
+    "id": "ClientToken",
+    "policies": ["web", "stage"],
+    "path": "auth/token/create",
+    "meta": {"user": "foo", "organization": "CPE"},
+    "display_name": "token-foo",
+    "num_uses": 0
+  }
+}
