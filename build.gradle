@@ -66,15 +66,16 @@ ext {
     jacocoToolVersion = '0.7.7.201606060606'
     // Anything in this jacocoExclusions list will be excluded from coverage reports.
     jacocoExclusions = [
-            "**/com/nike/cerberus/vault/client/http/**",
-            "**/com/nike/cerberus/vault/client/model/**"
+            "**/com/nike/vault/client/http/**",
+            "**/com/nike/vault/client/model/**",
+            "**/com/nike/vault/client/DefaultVaultUrlResolver.*" // Jacoco and PowerMock are not playing nice.
     ]
     jacocoCoverageThresholdSetup = {
         configure(subprojects) {
             jacocoCoverage {
                 // Enforce minimum code coverage. See https://github.com/palantir/gradle-jacoco-coverage for the full list of options.
                 reportThreshold 0.80, INSTRUCTION
-                reportThreshold 0.80, LINE
+                reportThreshold 0.80, BRANCH
             }
         }
     }
