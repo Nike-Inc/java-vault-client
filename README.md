@@ -8,6 +8,10 @@
 <a name="overview"></a>
 A simple java library for interacting with [Vault](https://www.vaultproject.io/).
 
+The `VaultClient` provides the four operations used on the generic secret backend: read, list, write and delete.
+
+The `VaultAdminClient` extends `VaultClient` with a selection of APIs under the sys and auth paths.  Please see the javadoc for exactly what APIs are available.
+
 <a name="quickstart"></a>
 ## Quickstart
 
@@ -95,7 +99,7 @@ Use the factory class then to create a Vault client with this custom credentials
 
 ## HTTP Client Customization
 
-Vault client uses OkHttp client to make HTTP requests against Vault.
+Vault client uses [OkHttp](http://square.github.io/okhttp/) client to make HTTP requests against Vault.
 
 The default client configuration used by the Vault client sets the connect, request and response timeouts to 15 seconds.  No other customizations are made.
 
