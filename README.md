@@ -6,7 +6,7 @@
 [![][license img]][license]
 
 <a name="overview"></a>
-A simple java library for interacting with Vault.
+A simple java library for interacting with [Vault](https://www.vaultproject.io/).
 
 <a name="quickstart"></a>
 ## Quickstart
