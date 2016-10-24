@@ -9,6 +9,11 @@ public class StaticVaultUrlResolver implements UrlResolver {
 
     private final String vaultUrl;
 
+    /**
+     * Explicit constructor for holding a static Vault URL.
+     *
+     * @param vaultUrl Vault URL
+     */
     public StaticVaultUrlResolver(final String vaultUrl) {
         if (StringUtils.isBlank(vaultUrl)) {
             throw new IllegalArgumentException("Vault URL can not be blank.");
@@ -17,6 +22,11 @@ public class StaticVaultUrlResolver implements UrlResolver {
         this.vaultUrl = vaultUrl;
     }
 
+    /**
+     * Returns a static Vault URL.
+     *
+     * @return Vault URL
+     */
     @Override
     public String resolve() {
         return vaultUrl;

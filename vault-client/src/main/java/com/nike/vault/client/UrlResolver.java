@@ -5,5 +5,10 @@ package com.nike.vault.client;
  */
 public interface UrlResolver {
 
+    /**
+     * Resolves the URL for the Vault instance.
+     *
+     * @return Vault URL
+     */
     String resolve();
 }
