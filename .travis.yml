@@ -6,8 +6,7 @@ cache:
   - "$HOME/.m2"
 after_success:
 - "./gradlew cobertura coveralls --stacktrace"
-- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && ./gradlew
-  bintrayPublish --stacktrace
+- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && ./gradlew bintrayPublish --stacktrace
 env:
   global:
   - secure: Dq5sTTGTGPzgczOOMbaQy/8h1Xjvi0C7twDT1gCHsXOKVGpMIPIBnAM2GuQkqAui/bLRlCwv7xhZ1RByqvXj8MOxGpKhLnGwVrizqYdXAcJXxL3XUC3Zf8XOP5PEQvnQmBC3rmQoXWKBgdditrVH/KWcRm9TF3VrFHqh3O0DX1EFMaPibeVRrO1xTOTDKsJi2DbvghLL6IXSCjkp4umxRqUkEalhLDmo3jnuCcFyTiM/fP0+9gmfaIW0f1+Oq+lkiQzYvI0YYTQINSZBpNgIZVoYkzgZZlSa8Fp0XTlZ5OTfBkecZv+8g6pseOvSYKxyLZVTYQ6nRl1bLS5a4sePHXBa1Y8g43nhIPluDM86wdRCxAzFhiAoQOKnsZ100M4RyPabphi292KtJS2hv6WNONS+nMeBByncLfWuVQAJEx4jeNgKtgdhYD2qVQu2cnQ0/k2dW0p1xNo17UmkQurmQu8OQ10Sn7omDti1vLuK5gvWLtKzDzLxA6rF/xaqceXTMmCyN2BZ+KSM4eZ+C1O/PZCI/E4rYEd2oCnfM/QonGv9UK4fxeP0OuCLsDB+otZbV+0kKdqdMwpsNERvj2GccO6XCvoXtB0sR2T/u5yARcwBPY2yXZPGE8fS9Q8xYMTRJgI8QU5GgURqOWZYQK0BIyLZ6I5yKZbjeEUnSHH/DVE=
