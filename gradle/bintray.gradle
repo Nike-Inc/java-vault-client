@@ -23,7 +23,7 @@ bintray {
     user = bintrayUser
     key = bintrayKey
     dryRun = false
-    publish = false
+    publish = true
     publications = ['mavenInfo']
 
     pkg {
