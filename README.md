@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/nike/maven/vault-client/images/download.svg) ](https://bintray.com/nike/maven/vault-client/_latestVersion)
 [![][travis img]][travis]
-[![Coverage Status](https://coveralls.io/repos/github/Nike-Inc/java-vault-client/badge.svg?branch=master)](https://coveralls.io/github/Nike-Inc/java-vault-client?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Nike-Inc/java-vault-client/badge.svg)](https://coveralls.io/github/Nike-Inc/java-vault-client)
 [![][license img]][license]
 
 <a name="overview"></a>
