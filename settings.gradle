@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 
-rootProject.name = 'vault-client'
-include "vault-client"
+rootProject.name = artifactId

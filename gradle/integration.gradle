@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-buildscript {
-    apply from: file('gradle/buildscript.gradle'), to: buildscript
+sourceSets {
+    integration {
+        java.srcDir file('src/integration/java')
+        resources.srcDir file('src/integration/resources')
+    }
 }
 
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven-publish'
+task integration(type: Test, description: 'Runs integration tests') {
+    testClassesDir = sourceSets.integration.output.classesDir
+    classpath = sourceSets.integration.runtimeClasspath
+}
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
-apply from: file('gradle/dependencies.gradle')
-apply from: file('gradle/check.gradle')
-apply from: file('gradle/integration.gradle')
-apply from: file('gradle/bintray.gradle')
-
-group = groupId
+dependencies {
+    integrationCompile sourceSets.main.output
+    integrationCompile configurations.testCompile
+    integrationCompile sourceSets.test.output
+    integrationRuntime configurations.testRuntime
+}
