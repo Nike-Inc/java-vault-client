@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-buildscript {
-    apply from: file('gradle/buildscript.gradle'), to: buildscript
+repositories {
+    jcenter()
 }
 
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven-publish'
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
-apply from: file('gradle/dependencies.gradle')
-apply from: file('gradle/check.gradle')
-apply from: file('gradle/integration.gradle')
-apply from: file('gradle/bintray.gradle')
-
-group = groupId
+dependencies {
+    classpath "net.saliman:gradle-cobertura-plugin:2.3.0"
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3'
+}
