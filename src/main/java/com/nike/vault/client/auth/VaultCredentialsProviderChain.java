@@ -93,10 +93,13 @@ public class VaultCredentialsProviderChain implements VaultCredentialsProvider {
                     return credentials;
                 }
             } catch (VaultClientException sce) {
-                // Provider was unable to acquire credentials, ignore and move on to the next one.
-                LOGGER.info("Failed to resolve Vault credentials with credential provider: {} for reason: {} moving " +
-                        "on to next provider", credentialsProvider.getClass().toString(), sce.getMessage());
-                LOGGER.debug("Full exception", sce);
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Failed to resolve Vault credentials with credential provider: {}. Moving " +
+                            "on to next provider", credentialsProvider.getClass().toString(), sce);
+                } else {
+                    LOGGER.info("Failed to resolve Vault credentials with credential provider: {} for reason: {} moving " +
+                            "on to next provider", credentialsProvider.getClass().toString(), sce.getMessage());
+                }
             } catch (Exception e) {
                 // The catch all is so that we don't break the chain of providers.
                 // If we do get an unexpected exception, we should at least log it for review.
