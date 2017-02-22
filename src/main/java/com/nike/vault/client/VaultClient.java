@@ -285,8 +285,8 @@ public class VaultClient {
     protected <M> M parseResponseBody(final Response response, final Class<M> responseClass) {
         try {
             return gson.fromJson(response.body().string(), responseClass);
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the response body from vault", e);
+        } catch (Exception e) {
+            throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
 
@@ -301,8 +301,8 @@ public class VaultClient {
     protected <M> M parseResponseBody(final Response response, final Type typeOf) {
         try {
             return gson.fromJson(response.body().string(), typeOf);
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the response body from vault", e);
+        } catch (Exception e) {
+            throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
 
@@ -320,8 +320,8 @@ public class VaultClient {
             } else {
                 throw new VaultServerException(response.code(), new LinkedList<String>());
             }
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the error response body from vault", e);
+        } catch (Exception e) {
+            throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
     }
 
