@@ -19,6 +19,7 @@ package com.nike.vault.client;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
 import com.nike.vault.client.http.HttpHeader;
@@ -285,8 +286,8 @@ public class VaultClient {
     protected <M> M parseResponseBody(final Response response, final Class<M> responseClass) {
         try {
             return gson.fromJson(response.body().string(), responseClass);
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the response body from vault", e);
+        } catch (IOException|JsonSyntaxException e) {
+            throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
 
@@ -301,8 +302,8 @@ public class VaultClient {
     protected <M> M parseResponseBody(final Response response, final Type typeOf) {
         try {
             return gson.fromJson(response.body().string(), typeOf);
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the response body from vault", e);
+        } catch (IOException|JsonSyntaxException e) {
+            throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
 
@@ -320,8 +321,8 @@ public class VaultClient {
             } else {
                 throw new VaultServerException(response.code(), new LinkedList<String>());
             }
-        } catch (IOException e) {
-            throw new VaultClientException("Error parsing the error response body from vault", e);
+        } catch (IOException|JsonSyntaxException e) {
+            throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
     }
 
