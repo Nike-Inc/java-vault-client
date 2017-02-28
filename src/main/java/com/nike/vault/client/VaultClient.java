@@ -318,7 +318,7 @@ public class VaultClient {
         try {
             return gson.fromJson(response.body().string(), typeOf);
         } catch (IOException|JsonSyntaxException e) {
-            responseBodyAsString(response);
+            logger.error("parseResponseBody: requestUrl={}, response={}", response.request().url(), responseBodyAsString(response));
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
