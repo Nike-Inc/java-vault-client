@@ -301,7 +301,7 @@ public class VaultClient {
         try {
             return gson.fromJson(response.body().string(), responseClass);
         } catch (IOException|JsonSyntaxException e) {
-            logger.error("parseResponseBody: response={}", gson.toJson(response.body()));
+            logger.error("parseResponseBody: requestUrl={}, response={}", response.request().url(), logResponse(response));
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -318,7 +318,7 @@ public class VaultClient {
         try {
             return gson.fromJson(response.body().string(), typeOf);
         } catch (IOException|JsonSyntaxException e) {
-            logger.error("parseResponseBody: response={}", gson.toJson(response.body()));
+            logger.error("parseResponseBody: requestUrl={}, response={}", response.request().url(), logResponse(response));
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -329,7 +329,7 @@ public class VaultClient {
      * @param response Response to parses the error details from
      */
     protected void parseAndThrowErrorResponse(final Response response) {
-        logger.debug("parseAndThrowErrorResponse: response={}", gson.toJson(response.body()));
+        logger.debug("parseAndThrowErrorResponse: requestUrl={}, response={}", response.request().url(), logResponse(response));
 
         try {
             ErrorResponse errorResponse = gson.fromJson(response.body().string(), ErrorResponse.class);
@@ -340,7 +340,7 @@ public class VaultClient {
                 throw new VaultServerException(response.code(), new LinkedList<String>());
             }
         } catch (IOException|JsonSyntaxException e) {
-            logger.error("ERROR Failed to parse error message, response body received: {}", gson.toJson(response.body()));
+            logger.error("ERROR Failed to parse error message, response body received: {}", logResponse(response));
             throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
     }
@@ -353,6 +353,15 @@ public class VaultClient {
 
         public List<String> getErrors() {
             return errors;
+        }
+    }
+
+    protected String logResponse(Response response) {
+        try {
+            return response.body().string();
+        } catch (IOException ioe) {
+            logger.debug("logResponse: response={}", gson.toJson(response));
+            return "ERROR failed to print response body as str: " + ioe.getMessage();
         }
     }
 }
