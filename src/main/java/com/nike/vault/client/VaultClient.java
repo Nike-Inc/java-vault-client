@@ -298,11 +298,12 @@ public class VaultClient {
      * @return Deserialized object from the response body
      */
     protected <M> M parseResponseBody(final Response response, final Class<M> responseClass) {
+        final String responseBodyStr = responseBodyAsString(response);
         try {
-            return gson.fromJson(response.body().string(), responseClass);
-        } catch (IOException|JsonSyntaxException e) {
+            return gson.fromJson(responseBodyStr, responseClass);
+        } catch (JsonSyntaxException e) {
             logger.error("parseResponseBody: responseCode={}, requestUrl={}, response={}",
-                    response.code(), response.request().url(), responseBodyAsString(response));
+                    response.code(), response.request().url(), responseBodyStr);
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -316,11 +317,12 @@ public class VaultClient {
      * @return Deserialized object from the response body
      */
     protected <M> M parseResponseBody(final Response response, final Type typeOf) {
+        final String responseBodyStr = responseBodyAsString(response);
         try {
-            return gson.fromJson(response.body().string(), typeOf);
-        } catch (IOException|JsonSyntaxException e) {
+            return gson.fromJson(responseBodyStr, typeOf);
+        } catch (JsonSyntaxException e) {
             logger.error("parseResponseBody: responseCode={}, requestUrl={}, response={}",
-                    response.code(), response.request().url(), responseBodyAsString(response));
+                    response.code(), response.request().url(), responseBodyStr);
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -331,19 +333,20 @@ public class VaultClient {
      * @param response Response to parses the error details from
      */
     protected void parseAndThrowErrorResponse(final Response response) {
+        final String responseBodyStr = responseBodyAsString(response);
         logger.debug("parseAndThrowErrorResponse: responseCode={}, requestUrl={}, response={}",
-                response.code(), response.request().url(), responseBodyAsString(response));
+                response.code(), response.request().url(), responseBodyStr);
 
         try {
-            ErrorResponse errorResponse = gson.fromJson(response.body().string(), ErrorResponse.class);
+            ErrorResponse errorResponse = gson.fromJson(responseBodyStr, ErrorResponse.class);
 
             if (errorResponse != null) {
                 throw new VaultServerException(response.code(), errorResponse.getErrors());
             } else {
                 throw new VaultServerException(response.code(), new LinkedList<String>());
             }
-        } catch (IOException|JsonSyntaxException e) {
-            logger.error("ERROR Failed to parse error message, response body received: {}", responseBodyAsString(response));
+        } catch (JsonSyntaxException e) {
+            logger.error("ERROR Failed to parse error message, response body received: {}", responseBodyStr);
             throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
     }
