@@ -35,6 +35,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
@@ -64,6 +66,8 @@ public class VaultClient {
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .disableHtmlEscaping()
             .create();
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Explicit constructor that allows for full control over construction of the Vault client.
@@ -107,6 +111,8 @@ public class VaultClient {
      */
     public VaultListResponse list(final String path) {
         final HttpUrl url = buildUrl(SECRET_PATH_PREFIX, path + "?list=true");
+        logger.debug("list: requestUrl={}", url);
+
         final Response response = execute(url, HttpMethod.GET, null);
 
         if (response.code() == HttpStatus.NOT_FOUND) {
@@ -132,6 +138,8 @@ public class VaultClient {
      */
     public VaultResponse read(final String path) {
         final HttpUrl url = buildUrl(SECRET_PATH_PREFIX, path);
+        logger.debug("read: requestUrl={}", url);
+
         final Response response = execute(url, HttpMethod.GET, null);
 
         if (response.code() != HttpStatus.OK) {
@@ -151,6 +159,8 @@ public class VaultClient {
      */
     public void write(final String path, final Map<String, String> data) {
         final HttpUrl url = buildUrl(SECRET_PATH_PREFIX, path);
+        logger.debug("write: requestUrl={}", url);
+
         final Response response = execute(url, HttpMethod.POST, data);
 
         if (response.code() != HttpStatus.NO_CONTENT) {
@@ -167,6 +177,8 @@ public class VaultClient {
      */
     public void delete(final String path) {
         final HttpUrl url = buildUrl(SECRET_PATH_PREFIX, path);
+        logger.debug("delete: requestUrl={}", url);
+
         final Response response = execute(url, HttpMethod.DELETE, null);
 
         if (response.code() != HttpStatus.NO_CONTENT) {
@@ -183,6 +195,8 @@ public class VaultClient {
      */
     public VaultClientTokenResponse lookupSelf() {
         final HttpUrl url = buildUrl(AUTH_PATH_PREFIX, "token/lookup-self");
+        logger.debug("lookupSelf: requestUrl={}", url);
+
         final Response response = execute(url, HttpMethod.GET, null);
 
         if (response.code() != HttpStatus.OK) {
@@ -287,6 +301,8 @@ public class VaultClient {
         try {
             return gson.fromJson(response.body().string(), responseClass);
         } catch (IOException|JsonSyntaxException e) {
+            logger.error("parseResponseBody: responseCode={}, requestUrl={}, response={}",
+                    response.code(), response.request().url(), responseBodyAsString(response));
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -303,6 +319,8 @@ public class VaultClient {
         try {
             return gson.fromJson(response.body().string(), typeOf);
         } catch (IOException|JsonSyntaxException e) {
+            logger.error("parseResponseBody: responseCode={}, requestUrl={}, response={}",
+                    response.code(), response.request().url(), responseBodyAsString(response));
             throw new VaultClientException("Error parsing the response body from vault, response code: " + response.code(), e);
         }
     }
@@ -313,6 +331,9 @@ public class VaultClient {
      * @param response Response to parses the error details from
      */
     protected void parseAndThrowErrorResponse(final Response response) {
+        logger.debug("parseAndThrowErrorResponse: responseCode={}, requestUrl={}, response={}",
+                response.code(), response.request().url(), responseBodyAsString(response));
+
         try {
             ErrorResponse errorResponse = gson.fromJson(response.body().string(), ErrorResponse.class);
 
@@ -322,6 +343,7 @@ public class VaultClient {
                 throw new VaultServerException(response.code(), new LinkedList<String>());
             }
         } catch (IOException|JsonSyntaxException e) {
+            logger.error("ERROR Failed to parse error message, response body received: {}", responseBodyAsString(response));
             throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
     }
@@ -334,6 +356,15 @@ public class VaultClient {
 
         public List<String> getErrors() {
             return errors;
+        }
+    }
+
+    protected String responseBodyAsString(Response response) {
+        try {
+            return response.body().string();
+        } catch (IOException ioe) {
+            logger.debug("responseBodyAsString: response={}", gson.toJson(response));
+            return "ERROR failed to print response body as str: " + ioe.getMessage();
         }
     }
 }
