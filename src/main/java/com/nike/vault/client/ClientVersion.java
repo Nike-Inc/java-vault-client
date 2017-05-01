@@ -19,7 +19,6 @@ package com.nike.vault.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -28,7 +27,7 @@ import java.util.Properties;
  */
 public class ClientVersion {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ClientVersion.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientVersion.class);
 
     protected static final String CLIENT_VERSION_PROPERTY_FILE = "java-vault-client.properties";
 
@@ -41,15 +40,14 @@ public class ClientVersion {
 
     public static String getVersion() {
 
-        final Properties properties;
         String clientVersion = "unknown";
         try {
             InputStream propsStream = ClientVersion.class.getClassLoader().getResourceAsStream(CLIENT_VERSION_PROPERTY_FILE);
-            properties = new Properties();
+            Properties properties = new Properties();
             properties.load(propsStream);
 
             clientVersion = properties.getProperty(VAULT_CLIENT_VERSION_PROPERTY);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to load client properties file", e);
         }
 
