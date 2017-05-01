@@ -16,11 +16,9 @@
 
 package com.nike.vault.client;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests ClientVersion class
@@ -35,12 +33,5 @@ public class ClientVersionTest {
     @Test
     public void test_that_version_is_not_null() {
         assertNotNull(ClientVersion.getVersion());
-    }
-
-    @Test
-    public void test_that_header_value_includes_right_prefix() {
-
-        String result = ClientVersion.getClientHeaderValue();
-        assertTrue(StringUtils.contains(result, ClientVersion.HEADER_VALUE_PREFIX));
     }
 }
