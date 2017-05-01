@@ -69,9 +69,6 @@ public class VaultClient {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final String javaVaultClientHeaderValue;
-
-
     /**
      * Explicit constructor that allows for full control over construction of the Vault client.
      *
@@ -97,7 +94,6 @@ public class VaultClient {
         this.urlResolver = vaultUrlResolver;
         this.credentialsProvider = credentialsProvider;
         this.httpClient = httpClient;
-        this.javaVaultClientHeaderValue = ClientVersion.getClientHeaderValue();
     }
 
 
@@ -270,8 +266,7 @@ public class VaultClient {
             Request.Builder requestBuilder = new Request.Builder()
                     .url(url)
                     .addHeader(HttpHeader.VAULT_TOKEN, credentialsProvider.getCredentials().getToken())
-                    .addHeader(HttpHeader.ACCEPT, DEFAULT_MEDIA_TYPE.toString())
-                    .addHeader(ClientVersion.CERBERUS_CLIENT_HEADER, javaVaultClientHeaderValue);
+                    .addHeader(HttpHeader.ACCEPT, DEFAULT_MEDIA_TYPE.toString());
 
             if (requestBody != null) {
                 requestBuilder.addHeader(HttpHeader.CONTENT_TYPE, DEFAULT_MEDIA_TYPE.toString())

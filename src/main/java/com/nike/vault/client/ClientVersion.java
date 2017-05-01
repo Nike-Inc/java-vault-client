@@ -33,11 +33,6 @@ public class ClientVersion {
 
     private static final String VAULT_CLIENT_VERSION_PROPERTY = "java_vault_client.version";
 
-    public static final String CERBERUS_CLIENT_HEADER = "X-Cerberus-Client";
-
-    protected static final String HEADER_VALUE_PREFIX = "JavaVaultClient/";
-
-
     public static String getVersion() {
 
         String clientVersion = "unknown";
@@ -52,9 +47,5 @@ public class ClientVersion {
         }
 
         return clientVersion;
-    }
-
-    public static String getClientHeaderValue() {
-        return HEADER_VALUE_PREFIX + getVersion();
     }
 }
