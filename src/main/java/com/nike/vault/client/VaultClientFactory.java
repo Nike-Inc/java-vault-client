@@ -18,6 +18,7 @@ package com.nike.vault.client;
 
 import com.nike.vault.client.auth.DefaultVaultCredentialsProviderChain;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
@@ -28,8 +29,14 @@ import java.util.concurrent.TimeUnit;
 public class VaultClientFactory {
 
     private static final int DEFAULT_TIMEOUT = 15;
-
     private static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.SECONDS;
+
+    /**
+     * A VaultAdminClient may need to make many requests to Vault simultaneously.
+     *
+     * (Default value in OkHttpClient was 5).
+     */
+    private static final int DEFAULT_MAX_REQUESTS_PER_HOST = 200;
 
     /**
      * Basic factory method that will build a Vault client that
@@ -114,13 +121,7 @@ public class VaultClientFactory {
      * @return Vault admin client
      */
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver) {
-        return new VaultAdminClient(vaultUrlResolver,
-                new DefaultVaultCredentialsProviderChain(),
-                new OkHttpClient.Builder()
-                        .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .build());
+        return getAdminClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain());
     }
 
     /**
@@ -131,11 +132,30 @@ public class VaultClientFactory {
      * @return Vault admin client
      */
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
-                                        final VaultCredentialsProvider vaultCredentialsProvider) {
+                                                  final VaultCredentialsProvider vaultCredentialsProvider) {
+        return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, DEFAULT_MAX_REQUESTS_PER_HOST);
+    }
+
+    /**
+     * Factory method that allows for a user defined Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver    URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param maxRequestsPerHost Max Requests per Host used by the dispatcher
+     * @return Vault admin client
+     */
+    public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
+                                                  final VaultCredentialsProvider vaultCredentialsProvider,
+                                                  final int maxRequestsPerHost) {
+
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
+
         return new VaultAdminClient(vaultUrlResolver, vaultCredentialsProvider, new OkHttpClient.Builder()
                 .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                 .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                 .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                .dispatcher(dispatcher)
                 .build());
     }
 }
