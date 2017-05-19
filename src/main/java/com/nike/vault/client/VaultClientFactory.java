@@ -121,7 +121,7 @@ public class VaultClientFactory {
      * @return Vault admin client
      */
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver) {
-        return getAdminClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain());
+        return getAdminClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain(), DEFAULT_MAX_REQUESTS_PER_HOST);
     }
 
     /**
