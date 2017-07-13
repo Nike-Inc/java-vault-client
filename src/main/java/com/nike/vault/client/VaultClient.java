@@ -116,6 +116,7 @@ public class VaultClient {
         final Response response = execute(url, HttpMethod.GET, null);
 
         if (response.code() == HttpStatus.NOT_FOUND) {
+            response.close();
             return new VaultListResponse();
         } else if (response.code() != HttpStatus.OK) {
             parseAndThrowErrorResponse(response);
