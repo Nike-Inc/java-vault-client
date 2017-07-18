@@ -75,6 +75,7 @@ public class VaultAdminClient extends VaultClient {
      * @param vaultUrlResolver    URL resolver for Vault
      * @param credentialsProvider Credential provider for acquiring a token for interacting with Vault
      * @param httpClient          HTTP client for calling Vault
+     * @param defaultHeaders      Default HTTP headers to be included in each request made by the returned VaultClient
      */
     public VaultAdminClient(final UrlResolver vaultUrlResolver,
                             final VaultCredentialsProvider credentialsProvider,
