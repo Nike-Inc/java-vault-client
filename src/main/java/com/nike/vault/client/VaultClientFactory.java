@@ -19,6 +19,7 @@ package com.nike.vault.client;
 import com.nike.vault.client.auth.DefaultVaultCredentialsProviderChain;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
 import okhttp3.Dispatcher;
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
@@ -50,13 +51,7 @@ public class VaultClientFactory {
      * @return Vault client
      */
     public static VaultClient getClient() {
-        return new VaultClient(new DefaultVaultUrlResolver(),
-                new DefaultVaultCredentialsProviderChain(),
-                new OkHttpClient.Builder()
-                        .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .build());
+        return getClient(new DefaultVaultUrlResolver(), new DefaultVaultCredentialsProviderChain(), new Headers.Builder().build());
     }
 
     /**
@@ -67,13 +62,7 @@ public class VaultClientFactory {
      * @return Vault client
      */
     public static VaultClient getClient(final UrlResolver vaultUrlResolver) {
-        return new VaultClient(vaultUrlResolver,
-                new DefaultVaultCredentialsProviderChain(),
-                new OkHttpClient.Builder()
-                        .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .build());
+        return getClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain(), new Headers.Builder().build());
     }
 
     /**
@@ -85,11 +74,28 @@ public class VaultClientFactory {
      */
     public static VaultClient getClient(final UrlResolver vaultUrlResolver,
                                         final VaultCredentialsProvider vaultCredentialsProvider) {
-        return new VaultClient(vaultUrlResolver, vaultCredentialsProvider, new OkHttpClient.Builder()
-                .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .build());
+        return getClient(vaultUrlResolver, vaultCredentialsProvider, new Headers.Builder().build());
+    }
+
+    /**
+     * Factory method that allows a user to define default HTTP headers to be added to every HTTP request made from the
+     * VaultClient. The user can also define their Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver    URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @return Vault client
+     */
+    public static VaultClient getClient(final UrlResolver vaultUrlResolver,
+                                        final VaultCredentialsProvider vaultCredentialsProvider,
+                                        final Headers defaultHeaders) {
+        return new VaultClient(vaultUrlResolver,
+                vaultCredentialsProvider,
+                new OkHttpClient.Builder()
+                    .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .build(),
+                defaultHeaders);
     }
 
     /**
@@ -148,14 +154,49 @@ public class VaultClientFactory {
                                                   final VaultCredentialsProvider vaultCredentialsProvider,
                                                   final int maxRequestsPerHost) {
 
+        return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, maxRequestsPerHost, new Headers.Builder().build());
+    }
+
+    /**
+     * Factory method that allows a user to define default HTTP headers to be added to every HTTP request made from the
+     * VaultClient. The user can also define their Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver    URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @return Vault client
+     */
+    public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
+                                                  final VaultCredentialsProvider vaultCredentialsProvider,
+                                                  final Headers defaultHeaders) {
+
+        return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, DEFAULT_MAX_REQUESTS_PER_HOST, defaultHeaders);
+    }
+
+    /**
+     * Factory method that allows the user to completely configure the VaultClient.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param maxRequestsPerHost       Max Requests per Host used by the dispatcher
+     * @param defaultHeaders           Max Requests per Host used by the dispatcher
+     * @return Vault admin client
+     */
+    public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
+                                                  final VaultCredentialsProvider vaultCredentialsProvider,
+                                                  final int maxRequestsPerHost,
+                                                  final Headers defaultHeaders) {
+
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
 
-        return new VaultAdminClient(vaultUrlResolver, vaultCredentialsProvider, new OkHttpClient.Builder()
-                .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                .dispatcher(dispatcher)
-                .build());
+        return new VaultAdminClient(vaultUrlResolver,
+                vaultCredentialsProvider,
+                new OkHttpClient.Builder()
+                    .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                    .dispatcher(dispatcher)
+                    .build(),
+                defaultHeaders);
     }
 }

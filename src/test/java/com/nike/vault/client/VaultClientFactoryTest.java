@@ -19,6 +19,7 @@ package com.nike.vault.client;
 import com.nike.vault.client.auth.TokenVaultCredentials;
 import com.nike.vault.client.auth.VaultCredentials;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
+import okhttp3.Headers;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,20 @@ public class VaultClientFactoryTest {
     }
 
     @Test
+    public void test_get_client_uses_default_headers() {
+        final String headerKey = "HeaderKey";
+        final String headerValue = "header value";
+        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final VaultClient client = VaultClientFactory.getClient(urlResolver, credentialsProvider, defaultHeaders);
+        assertThat(client).isNotNull();
+        assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
+        assertThat(client.getCredentialsProvider()).isNotNull();
+        assertThat(client.getCredentialsProvider().getCredentials().getToken()).isEqualTo(TOKEN);
+        assertThat(client.getDefaultHeaders().size()).isEqualTo(1);
+        assertThat(client.getDefaultHeaders().get(headerKey)).isEqualTo(headerValue);
+    }
+
+    @Test
     public void test_get_admin_client_returns_configured_client() {
         final VaultAdminClient client = VaultClientFactory.getAdminClient();
         assertThat(client).isNotNull();
@@ -84,5 +99,33 @@ public class VaultClientFactoryTest {
         assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
         assertThat(client.getCredentialsProvider()).isNotNull();
         assertThat(client.getCredentialsProvider().getCredentials().getToken()).isEqualTo(TOKEN);
+    }
+
+    @Test
+    public void test_get_admin_client_uses_all_parameters() {
+        final String headerKey = "HeaderKey";
+        final String headerValue = "header value";
+        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final VaultAdminClient client = VaultClientFactory.getAdminClient(urlResolver, credentialsProvider, 100, defaultHeaders);
+        assertThat(client).isNotNull();
+        assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
+        assertThat(client.getCredentialsProvider()).isNotNull();
+        assertThat(client.getCredentialsProvider().getCredentials().getToken()).isEqualTo(TOKEN);
+        assertThat(client.getDefaultHeaders().size()).isEqualTo(1);
+        assertThat(client.getDefaultHeaders().get(headerKey)).isEqualTo(headerValue);
+    }
+
+    @Test
+    public void test_get_admin_client_uses_default_headers() {
+        final String headerKey = "HeaderKey";
+        final String headerValue = "header value";
+        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final VaultAdminClient client = VaultClientFactory.getAdminClient(urlResolver, credentialsProvider, defaultHeaders);
+        assertThat(client).isNotNull();
+        assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
+        assertThat(client.getCredentialsProvider()).isNotNull();
+        assertThat(client.getCredentialsProvider().getCredentials().getToken()).isEqualTo(TOKEN);
+        assertThat(client.getDefaultHeaders().size()).isEqualTo(1);
+        assertThat(client.getDefaultHeaders().get(headerKey)).isEqualTo(headerValue);
     }
 }

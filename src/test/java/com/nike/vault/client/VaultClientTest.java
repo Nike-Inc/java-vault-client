@@ -23,7 +23,10 @@ import com.nike.vault.client.http.HttpStatus;
 import com.nike.vault.client.model.VaultClientTokenResponse;
 import com.nike.vault.client.model.VaultListResponse;
 import com.nike.vault.client.model.VaultResponse;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
@@ -265,6 +268,23 @@ public class VaultClientTest {
         mockWebServer.enqueue(response);
 
         vaultClient.lookupSelf();
+    }
+
+    @Test
+    public void build_request_includes_default_headers() throws IOException {
+        final String headerKey = "headerKey";
+        final String headerValue = "headerValue";
+        final Headers headers = new Headers.Builder().add(headerKey, headerValue).build();
+
+        final String vaultUrl = "http://localhost:" + mockWebServer.getPort();
+        final VaultCredentialsProvider vaultCredentialsProvider = mock(VaultCredentialsProvider.class);
+        when(vaultCredentialsProvider.getCredentials()).thenReturn(new TestVaultCredentials());
+        final OkHttpClient httpClient = buildHttpClient(1, TimeUnit.SECONDS);
+        vaultClient = new VaultClient(new StaticVaultUrlResolver(vaultUrl), vaultCredentialsProvider, httpClient, headers);
+
+        Request result = vaultClient.buildRequest(HttpUrl.parse(vaultUrl), "get", null);
+
+        assertThat(result.headers().get(headerKey)).isEqualTo(headerValue);
     }
 
     private OkHttpClient buildHttpClient(int timeout, TimeUnit timeoutUnit) {

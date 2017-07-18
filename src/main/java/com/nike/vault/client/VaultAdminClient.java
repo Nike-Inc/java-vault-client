@@ -30,6 +30,7 @@ import com.nike.vault.client.model.VaultRevokeTokenRequest;
 import com.nike.vault.client.model.VaultSealStatusResponse;
 import com.nike.vault.client.model.VaultTokenAuthRequest;
 import com.nike.vault.client.model.VaultUnsealRequest;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -66,6 +67,20 @@ public class VaultAdminClient extends VaultClient {
                             final VaultCredentialsProvider credentialsProvider,
                             final OkHttpClient httpClient) {
         super(vaultUrlResolver, credentialsProvider, httpClient);
+    }
+
+    /**
+     * Explicit constructor that allows for full control over construction of the Vault client.
+     *
+     * @param vaultUrlResolver    URL resolver for Vault
+     * @param credentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param httpClient          HTTP client for calling Vault
+     */
+    public VaultAdminClient(final UrlResolver vaultUrlResolver,
+                            final VaultCredentialsProvider credentialsProvider,
+                            final OkHttpClient httpClient,
+                            final Headers defaultHeaders) {
+        super(vaultUrlResolver, credentialsProvider, httpClient, defaultHeaders);
     }
 
     /**
