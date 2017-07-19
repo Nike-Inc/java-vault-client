@@ -91,6 +91,10 @@ public class VaultClientFactory {
     public static VaultClient getClient(final UrlResolver vaultUrlResolver,
                                         final VaultCredentialsProvider vaultCredentialsProvider,
                                         final Map<String, String> defaultHeaders) {
+        if (defaultHeaders == null) {
+            throw new IllegalArgumentException("Default headers cannot be null.");
+        }
+
         Headers.Builder headers = new Headers.Builder();
         for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
             headers.add(header.getKey(), header.getValue());
@@ -192,6 +196,10 @@ public class VaultClientFactory {
                                                   final VaultCredentialsProvider vaultCredentialsProvider,
                                                   final int maxRequestsPerHost,
                                                   final Map<String, String> defaultHeaders) {
+        if (defaultHeaders == null) {
+            throw new IllegalArgumentException("Default headers cannot be null.");
+        }
+
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
 
