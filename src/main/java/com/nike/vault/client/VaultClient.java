@@ -28,6 +28,7 @@ import com.nike.vault.client.http.HttpStatus;
 import com.nike.vault.client.model.VaultClientTokenResponse;
 import com.nike.vault.client.model.VaultListResponse;
 import com.nike.vault.client.model.VaultResponse;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -62,12 +63,40 @@ public class VaultClient {
 
     private final UrlResolver urlResolver;
 
+    private final Headers defaultHeaders;
+
     private final Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .disableHtmlEscaping()
             .create();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    public VaultClient(final UrlResolver vaultUrlResolver,
+                       final VaultCredentialsProvider credentialsProvider,
+                       final OkHttpClient httpClient,
+                       final Headers defaultHeaders) {
+        if (vaultUrlResolver == null) {
+            throw new IllegalArgumentException("Vault URL resolver cannot be null.");
+        }
+
+        if (credentialsProvider == null) {
+            throw new IllegalArgumentException("Credentials provider cannot be null.");
+        }
+
+        if (httpClient == null) {
+            throw new IllegalArgumentException("Http client cannot be null.");
+        }
+
+        if (defaultHeaders == null) {
+            throw new IllegalArgumentException("Default headers cannot be null.");
+        }
+
+        this.urlResolver = vaultUrlResolver;
+        this.credentialsProvider = credentialsProvider;
+        this.httpClient = httpClient;
+        this.defaultHeaders = defaultHeaders;
+    }
 
     /**
      * Explicit constructor that allows for full control over construction of the Vault client.
@@ -94,6 +123,7 @@ public class VaultClient {
         this.urlResolver = vaultUrlResolver;
         this.credentialsProvider = credentialsProvider;
         this.httpClient = httpClient;
+        this.defaultHeaders = new Headers.Builder().build();
     }
 
 
@@ -238,6 +268,15 @@ public class VaultClient {
     }
 
     /**
+     * Returns the configured default HTTP headers.
+     *
+     * @return The configured default HTTP headers
+     */
+    public Headers getDefaultHeaders() {
+        return defaultHeaders;
+    }
+
+    /**
      * Builds the full URL for preforming an operation against Vault.
      *
      * @param prefix Prefix between the environment URL and specified path
@@ -264,19 +303,9 @@ public class VaultClient {
      */
     protected Response execute(final HttpUrl url, final String method, final Object requestBody) {
         try {
-            Request.Builder requestBuilder = new Request.Builder()
-                    .url(url)
-                    .addHeader(HttpHeader.VAULT_TOKEN, credentialsProvider.getCredentials().getToken())
-                    .addHeader(HttpHeader.ACCEPT, DEFAULT_MEDIA_TYPE.toString());
+            Request request = buildRequest(url, method, requestBody);
 
-            if (requestBody != null) {
-                requestBuilder.addHeader(HttpHeader.CONTENT_TYPE, DEFAULT_MEDIA_TYPE.toString())
-                        .method(method, RequestBody.create(DEFAULT_MEDIA_TYPE, gson.toJson(requestBody)));
-            } else {
-                requestBuilder.method(method, null);
-            }
-
-            return httpClient.newCall(requestBuilder.build()).execute();
+            return httpClient.newCall(request).execute();
         } catch (IOException e) {
             if (e instanceof SSLException
                     && e.getMessage() != null
@@ -288,6 +317,30 @@ public class VaultClient {
                 throw new VaultClientException("I/O error while communicating with vault.", e);
             }
         }
+    }
+
+    /**
+     * Build the HTTP request to execute for the Vault Client
+     * @param url         The URL to execute the request against
+     * @param method      The HTTP method for the request
+     * @param requestBody The request body of the HTTP request
+     * @return - The HTTP request
+     */
+    protected Request buildRequest(final HttpUrl url, final String method, final Object requestBody) {
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .headers(defaultHeaders)  // call headers method first because it overwrites all existing headers
+                .addHeader(HttpHeader.VAULT_TOKEN, credentialsProvider.getCredentials().getToken())
+                .addHeader(HttpHeader.ACCEPT, DEFAULT_MEDIA_TYPE.toString());
+
+        if (requestBody != null) {
+            requestBuilder.addHeader(HttpHeader.CONTENT_TYPE, DEFAULT_MEDIA_TYPE.toString())
+                    .method(method, RequestBody.create(DEFAULT_MEDIA_TYPE, gson.toJson(requestBody)));
+        } else {
+            requestBuilder.method(method, null);
+        }
+
+        return requestBuilder.build();
     }
 
     /**
