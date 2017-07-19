@@ -22,6 +22,8 @@ import okhttp3.Dispatcher;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,7 +53,7 @@ public class VaultClientFactory {
      * @return Vault client
      */
     public static VaultClient getClient() {
-        return getClient(new DefaultVaultUrlResolver(), new DefaultVaultCredentialsProviderChain(), new Headers.Builder().build());
+        return getClient(new DefaultVaultUrlResolver(), new DefaultVaultCredentialsProviderChain(), new HashMap<String, String>());
     }
 
     /**
@@ -62,7 +64,7 @@ public class VaultClientFactory {
      * @return Vault client
      */
     public static VaultClient getClient(final UrlResolver vaultUrlResolver) {
-        return getClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain(), new Headers.Builder().build());
+        return getClient(vaultUrlResolver, new DefaultVaultCredentialsProviderChain(), new HashMap<String, String>());
     }
 
     /**
@@ -74,20 +76,26 @@ public class VaultClientFactory {
      */
     public static VaultClient getClient(final UrlResolver vaultUrlResolver,
                                         final VaultCredentialsProvider vaultCredentialsProvider) {
-        return getClient(vaultUrlResolver, vaultCredentialsProvider, new Headers.Builder().build());
+        return getClient(vaultUrlResolver, vaultCredentialsProvider, new HashMap<String, String>());
     }
 
     /**
-     * Factory method that allows a user to define default HTTP headers to be added to every HTTP request made from the
+     * Factory method that allows a user to define default HTTP defaultHeaders to be added to every HTTP request made from the
      * VaultClient. The user can also define their Vault URL resolver and credentials provider.
      *
-     * @param vaultUrlResolver    URL resolver for Vault
-     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param vaultUrlResolver          URL resolver for Vault
+     * @param vaultCredentialsProvider  Credential provider for acquiring a token for interacting with Vault
+     * @param defaultHeaders            Map of default header names and values to add to every HTTP request
      * @return Vault client
      */
     public static VaultClient getClient(final UrlResolver vaultUrlResolver,
                                         final VaultCredentialsProvider vaultCredentialsProvider,
-                                        final Headers defaultHeaders) {
+                                        final Map<String, String> defaultHeaders) {
+        Headers.Builder headers = new Headers.Builder();
+        for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
+            headers.add(header.getKey(), header.getValue());
+        }
+
         return new VaultClient(vaultUrlResolver,
                 vaultCredentialsProvider,
                 new OkHttpClient.Builder()
@@ -95,7 +103,7 @@ public class VaultClientFactory {
                     .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                     .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                     .build(),
-                defaultHeaders);
+               headers.build());
     }
 
     /**
@@ -153,22 +161,21 @@ public class VaultClientFactory {
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
                                                   final VaultCredentialsProvider vaultCredentialsProvider,
                                                   final int maxRequestsPerHost) {
-
-        return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, maxRequestsPerHost, new Headers.Builder().build());
+        return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, maxRequestsPerHost, new HashMap<String, String>());
     }
 
     /**
      * Factory method that allows a user to define default HTTP headers to be added to every HTTP request made from the
      * VaultClient. The user can also define their Vault URL resolver and credentials provider.
      *
-     * @param vaultUrlResolver    URL resolver for Vault
-     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param vaultUrlResolver          URL resolver for Vault
+     * @param vaultCredentialsProvider  Credential provider for acquiring a token for interacting with Vault
+     * @param defaultHeaders            Map of default header names and values to add to every HTTP request
      * @return Vault client
      */
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
                                                   final VaultCredentialsProvider vaultCredentialsProvider,
-                                                  final Headers defaultHeaders) {
-
+                                                  final Map<String, String> defaultHeaders) {
         return getAdminClient(vaultUrlResolver, vaultCredentialsProvider, DEFAULT_MAX_REQUESTS_PER_HOST, defaultHeaders);
     }
 
@@ -178,16 +185,20 @@ public class VaultClientFactory {
      * @param vaultUrlResolver         URL resolver for Vault
      * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
      * @param maxRequestsPerHost       Max Requests per Host used by the dispatcher
-     * @param defaultHeaders           Max Requests per Host used by the dispatcher
+     * @param defaultHeaders           Map of default header names and values to add to every HTTP request
      * @return Vault admin client
      */
     public static VaultAdminClient getAdminClient(final UrlResolver vaultUrlResolver,
                                                   final VaultCredentialsProvider vaultCredentialsProvider,
                                                   final int maxRequestsPerHost,
-                                                  final Headers defaultHeaders) {
-
+                                                  final Map<String, String> defaultHeaders) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
+
+        Headers.Builder headers = new Headers.Builder();
+        for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
+            headers.add(header.getKey(), header.getValue());
+        }
 
         return new VaultAdminClient(vaultUrlResolver,
                 vaultCredentialsProvider,
@@ -197,6 +208,6 @@ public class VaultClientFactory {
                     .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                     .dispatcher(dispatcher)
                     .build(),
-                defaultHeaders);
+                headers.build());
     }
 }

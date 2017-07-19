@@ -19,8 +19,10 @@ package com.nike.vault.client;
 import com.nike.vault.client.auth.TokenVaultCredentials;
 import com.nike.vault.client.auth.VaultCredentials;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
-import okhttp3.Headers;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +71,8 @@ public class VaultClientFactoryTest {
     public void test_get_client_uses_default_headers() {
         final String headerKey = "HeaderKey";
         final String headerValue = "header value";
-        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final Map<String, String> defaultHeaders = new HashMap<>();
+        defaultHeaders.put(headerKey, headerValue);
         final VaultClient client = VaultClientFactory.getClient(urlResolver, credentialsProvider, defaultHeaders);
         assertThat(client).isNotNull();
         assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
@@ -105,7 +108,8 @@ public class VaultClientFactoryTest {
     public void test_get_admin_client_uses_all_parameters() {
         final String headerKey = "HeaderKey";
         final String headerValue = "header value";
-        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final Map<String, String> defaultHeaders = new HashMap<>();
+        defaultHeaders.put(headerKey, headerValue);
         final VaultAdminClient client = VaultClientFactory.getAdminClient(urlResolver, credentialsProvider, 100, defaultHeaders);
         assertThat(client).isNotNull();
         assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
@@ -119,7 +123,8 @@ public class VaultClientFactoryTest {
     public void test_get_admin_client_uses_default_headers() {
         final String headerKey = "HeaderKey";
         final String headerValue = "header value";
-        final Headers defaultHeaders = new Headers.Builder().add(headerKey, headerValue).build();
+        final Map<String, String> defaultHeaders = new HashMap<>();
+        defaultHeaders.put(headerKey, headerValue);
         final VaultAdminClient client = VaultClientFactory.getAdminClient(urlResolver, credentialsProvider, defaultHeaders);
         assertThat(client).isNotNull();
         assertThat(client.getVaultUrl().url().toString()).isEqualTo(url);
