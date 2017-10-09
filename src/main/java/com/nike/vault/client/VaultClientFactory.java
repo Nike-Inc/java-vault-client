@@ -38,8 +38,13 @@ import static okhttp3.ConnectionSpec.MODERN_TLS;
  */
 public class VaultClientFactory {
 
-    private static final int DEFAULT_TIMEOUT = 15_000;
-    private static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
+    public static final int DEFAULT_TIMEOUT = 15_000;
+    public static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
+
+    /** Modify "MODERN_TLS" to remove TLS v1.0 and 1.1 */
+    public static final ConnectionSpec TLS_1_2_OR_NEWER = new ConnectionSpec.Builder(MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2)
+            .build();
 
     /**
      * A VaultAdminClient may need to make many requests to Vault simultaneously.
@@ -48,11 +53,6 @@ public class VaultClientFactory {
      */
     private static final int DEFAULT_MAX_REQUESTS = 200;
     private static final Map<String, String> DEFAULT_HEADERS = new HashMap<>();
-
-    // Modify "MODERN_TLS" to remove TLS v1.0 and 1.1
-    private static final ConnectionSpec TLS_1_2_OR_NEWER = new ConnectionSpec.Builder(MODERN_TLS)
-            .tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2)
-            .build();
 
     /**
      * Basic factory method that will build a Vault client that
