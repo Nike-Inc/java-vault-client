@@ -18,13 +18,20 @@ package com.nike.vault.client;
 
 import com.nike.vault.client.auth.DefaultVaultCredentialsProviderChain;
 import com.nike.vault.client.auth.VaultCredentialsProvider;
+import okhttp3.ConnectionSpec;
 import okhttp3.Dispatcher;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
+import okhttp3.TlsVersion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static okhttp3.ConnectionSpec.CLEARTEXT;
+import static okhttp3.ConnectionSpec.MODERN_TLS;
 
 /**
  * Convenience factory for creating instances of Vault clients.
@@ -41,6 +48,11 @@ public class VaultClientFactory {
      */
     private static final int DEFAULT_MAX_REQUESTS = 200;
     private static final Map<String, String> DEFAULT_HEADERS = new HashMap<>();
+
+    // Modify "MODERN_TLS" to remove TLS v1.0 and 1.1
+    private static final ConnectionSpec TLS_1_2_OR_NEWER = new ConnectionSpec.Builder(MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2)
+            .build();
 
     /**
      * Basic factory method that will build a Vault client that
@@ -101,12 +113,18 @@ public class VaultClientFactory {
             headers.add(header.getKey(), header.getValue());
         }
 
+        List<ConnectionSpec> connectionSpecs = new ArrayList<>();
+        connectionSpecs.add(TLS_1_2_OR_NEWER);
+        // for unit tests
+        connectionSpecs.add(CLEARTEXT);
+
         return new VaultClient(vaultUrlResolver,
                 vaultCredentialsProvider,
                 new OkHttpClient.Builder()
                         .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                         .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
                         .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                        .connectionSpecs(connectionSpecs)
                         .build(),
                 headers.build());
     }
@@ -268,6 +286,12 @@ public class VaultClientFactory {
         dispatcher.setMaxRequests(maxRequests);
         dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
 
+
+        List<ConnectionSpec> connectionSpecs = new ArrayList<>();
+        connectionSpecs.add(TLS_1_2_OR_NEWER);
+        // for unit tests
+        connectionSpecs.add(CLEARTEXT);
+
         Headers.Builder headers = new Headers.Builder();
         for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
             headers.add(header.getKey(), header.getValue());
@@ -280,6 +304,7 @@ public class VaultClientFactory {
                         .writeTimeout(writeTimeoutMillis, DEFAULT_TIMEOUT_UNIT)
                         .readTimeout(readTimeoutMillis, DEFAULT_TIMEOUT_UNIT)
                         .dispatcher(dispatcher)
+                        .connectionSpecs(connectionSpecs)
                         .build(),
                 headers.build());
     }
