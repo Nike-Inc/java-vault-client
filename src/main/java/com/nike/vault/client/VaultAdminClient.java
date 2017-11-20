@@ -337,18 +337,4 @@ public class VaultAdminClient extends VaultClient {
             parseAndThrowErrorResponse(response);
         }
     }
-
-    /**
-     * Barebones method that can be used to make any call to Vault.  The caller is responsible for interpreting
-     * and de-serializing the response.  The Gson instance used by the client is accessible via {@link #getGson()}
-     *
-     * @param path        Path to the resource
-     * @param method      HTTP method
-     * @param requestBody Request body to be serialized as JSON.  Set to null if no request body
-     * @return HTTP response object
-     */
-    public Response execute(final String path, final String method, final Object requestBody) {
-        final HttpUrl url = buildUrl("", path);
-        return execute(url, method, requestBody);
-    }
 }
