@@ -302,10 +302,7 @@ public class VaultAdminClient extends VaultClient {
             parseAndThrowErrorResponse(response);
         }
 
-        final Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> rootData = parseResponseBody(response, mapType);
-        return getGson().fromJson(getGson().toJson(rootData.get("data")), VaultClientTokenResponse.class);
+        return parseResponse(response, VaultClientTokenResponse.class);
     }
 
     /**

@@ -152,10 +152,7 @@ public class VaultClient {
             parseAndThrowErrorResponse(response);
         }
 
-        final Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> rootData = parseResponseBody(response, mapType);
-        return gson.fromJson(gson.toJson(rootData.get("data")), VaultListResponse.class);
+        return parseResponse(response, VaultListResponse.class);
     }
 
     /**
@@ -234,10 +231,7 @@ public class VaultClient {
             parseAndThrowErrorResponse(response);
         }
 
-        final Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> rootData = parseResponseBody(response, mapType);
-        return gson.fromJson(gson.toJson(rootData.get("data")), VaultClientTokenResponse.class);
+        return parseResponse(response, VaultClientTokenResponse.class);
     }
 
     /**
@@ -403,6 +397,14 @@ public class VaultClient {
             logger.error("ERROR Failed to parse error message, response body received: {}", responseBodyStr);
             throw new VaultClientException("Error parsing the error response body from vault, response code: " + response.code(), e);
         }
+    }
+
+    protected <T> T parseResponse(Response response, Class<T> responseType) {
+        final Type mapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
+        final Map<String, Object> rootData = parseResponseBody(response, mapType);
+        return getGson()
+            .fromJson(getGson().toJson(rootData.get("data")), responseType);
     }
 
     /**

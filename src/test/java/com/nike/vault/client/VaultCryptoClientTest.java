@@ -9,6 +9,10 @@ import com.nike.vault.client.auth.VaultCredentialsProvider;
 import com.nike.vault.client.http.HttpStatus;
 import com.nike.vault.client.model.VaultAsymmetricKeyResponse;
 import com.nike.vault.client.model.VaultCreateKeyRequest;
+import com.nike.vault.client.model.VaultDecryptDataRequest;
+import com.nike.vault.client.model.VaultDecryptDataResponse;
+import com.nike.vault.client.model.VaultEncryptDataRequest;
+import com.nike.vault.client.model.VaultEncryptDataResponse;
 import com.nike.vault.client.model.VaultKeyResponse;
 import com.nike.vault.client.model.VaultSymmetricKeyResponse;
 import java.io.IOException;
@@ -95,6 +99,38 @@ public class VaultCryptoClientTest {
         .equalsIgnoreCase("2017-11-19T20:20:15.854167+08:00"));
     assertThat(asymmetricResponse.getMinDecryptionVersion() == 1).isTrue();
     assertThat(asymmetricResponse.isSupportsSigning()).isTrue();
+  }
+
+  @Test
+  public void encrypt_returns_ok_if_created() {
+    final MockResponse response = new MockResponse();
+    response.setResponseCode(HttpStatus.OK);
+    response.setBody(getResponseJson("encrypt"));
+    mockWebServer.enqueue(response);
+
+    VaultEncryptDataRequest request = new VaultEncryptDataRequest();
+    request.setPlaintext("QWxsIHdlIGFyZSBidXQgc3BlY2tzIGluIGEgaHVnZSB1bml2ZXJzZSAuLi4=");
+
+    VaultEncryptDataResponse actualResponse = vaultClient.encrypt("test-key", request);
+
+    assertThat(actualResponse).isNotNull();
+    assertThat(actualResponse.getCiphertext()).isEqualTo("vault:v1:ZqkozlOaopGR4jf+/OhVS1iHyczM19Ax6ku1VJq4il7X7Wrqqc21dqKN8MTiOV4Iku8784X12NvOIfQcSvIWV2mW44q0HMlG");
+  }
+
+  @Test
+  public void decrypt_returns_ok_if_created() {
+    final MockResponse response = new MockResponse();
+    response.setResponseCode(HttpStatus.OK);
+    response.setBody(getResponseJson("decrypt"));
+    mockWebServer.enqueue(response);
+
+    VaultDecryptDataRequest request = new VaultDecryptDataRequest();
+    request.setCiphertext("vault:v1:ZqkozlOaopGR4jf+/OhVS1iHyczM19Ax6ku1VJq4il7X7Wrqqc21dqKN8MTiOV4Iku8784X12NvOIfQcSvIWV2mW44q0HMlG");
+
+    VaultDecryptDataResponse actualResponse = vaultClient.decrypt("test-key", request);
+
+    assertThat(actualResponse).isNotNull();
+    assertThat(actualResponse.getPlaintext()).isEqualTo("QWxsIHdlIGFyZSBidXQgc3BlY2tzIGluIGEgaHVnZSB1bml2ZXJzZSAuLi4=");
   }
 
   private String getResponseJson(final String title) {

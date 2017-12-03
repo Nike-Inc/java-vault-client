@@ -8,6 +8,10 @@ import com.nike.vault.client.http.HttpMethod;
 import com.nike.vault.client.http.HttpStatus;
 import com.nike.vault.client.model.VaultAsymmetricKeyResponse;
 import com.nike.vault.client.model.VaultCreateKeyRequest;
+import com.nike.vault.client.model.VaultDecryptDataRequest;
+import com.nike.vault.client.model.VaultDecryptDataResponse;
+import com.nike.vault.client.model.VaultEncryptDataRequest;
+import com.nike.vault.client.model.VaultEncryptDataResponse;
 import com.nike.vault.client.model.VaultKeyResponse;
 import com.nike.vault.client.model.VaultSymmetricKeyResponse;
 import java.lang.reflect.Type;
@@ -94,6 +98,42 @@ public class VaultCryptoClient extends VaultClient {
             .fromJson(getGson().toJson(rootData.get("data")), VaultAsymmetricKeyResponse.class);
     }
 
+  }
+
+  /**
+   * Encrypt data with a key stored in Vault
+   * @param keyName Name of the key to use for the cryptographic operation
+   * @param encryptRequest Encryption data
+   * @return Encryption response
+   */
+  @Nonnull
+  public VaultEncryptDataResponse encrypt(@Nonnull String keyName, @Nonnull VaultEncryptDataRequest encryptRequest) {
+    final HttpUrl url = buildUrl(TRANSIT_PATH_PREFIX, "encrypt/" + keyName);
+    final Response response = execute(url, HttpMethod.POST, encryptRequest);
+
+    if (response.code() != HttpStatus.OK) {
+      parseAndThrowErrorResponse(response);
+    }
+
+    return parseResponse(response, VaultEncryptDataResponse.class);
+  }
+
+  /**
+   * Decrypt data with a key stored in Vault
+   * @param keyName Name of the key to use for the cryptographic operation
+   * @param decryptRequest Decryption data
+   * @return Decryption response
+   */
+  @Nonnull
+  public VaultDecryptDataResponse decrypt(@Nonnull String keyName, @Nonnull VaultDecryptDataRequest decryptRequest) {
+    final HttpUrl url = buildUrl(TRANSIT_PATH_PREFIX, "decrypt/" + keyName);
+    final Response response = execute(url, HttpMethod.POST, decryptRequest);
+
+    if (response.code() != HttpStatus.OK) {
+      parseAndThrowErrorResponse(response);
+    }
+
+    return parseResponse(response, VaultDecryptDataResponse.class);
   }
 
 }
