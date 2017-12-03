@@ -8,7 +8,7 @@ public class VaultDecryptDataRequest {
   private String context;
 
   /**
-   * Specifies the ciphertext to decrypt.
+   * @return Ciphertext to decrypt.
    */
   public String getCiphertext() {
     return ciphertext;
@@ -19,8 +19,7 @@ public class VaultDecryptDataRequest {
   }
 
   /**
-   * Specifies the base64 encoded context for key derivation. This is required if key derivation is
-   * enabled.
+   * @return Base64 encoded context for key derivation. This is required if key derivation is enabled.
    */
   public String getContext() {
     return context;

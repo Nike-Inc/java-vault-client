@@ -38,6 +38,8 @@ public class VaultCreateKeyRequest {
    * generate it. Note that while this is useful for particular situations, all nonce values used
    * with a given context value must be unique or it will compromise the security of your key, and
    * the key space for nonces is 96 bit -- not as large as the AES key itself.
+   *
+   * @return convergent flag
    */
   public boolean isConvergentEncryption() {
     return convergentEncryption;
@@ -50,6 +52,8 @@ public class VaultCreateKeyRequest {
   /**
    * Specifies if key derivation is to be used. If enabled, all encrypt/decrypt requests to this
    * named key must provide a context which is used for key derivation.
+   *
+   * @return Derriviation flag
    */
   public boolean isDerived() {
     return derived;

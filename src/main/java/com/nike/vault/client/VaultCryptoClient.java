@@ -59,7 +59,6 @@ public class VaultCryptoClient extends VaultClient {
    *
    * @param name Key name
    * @param vaultCreateKeyRequest Request object with optional parameters
-   * @return Auth response with the token and details
    */
   public void createKey(@Nonnull final String name, @Nonnull final VaultCreateKeyRequest vaultCreateKeyRequest) {
     final HttpUrl url = buildUrl(TRANSIT_PATH_PREFIX, "keys/" + name);

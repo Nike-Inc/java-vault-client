@@ -9,7 +9,7 @@ public class VaultEncryptDataRequest {
   private int keyVersion;
 
   /**
-   * Specifies base64 encoded plaintext to be encoded.
+   * @return Base64 encoded plaintext to be encoded.
    */
   public String getPlaintext() {
     return plaintext;
@@ -20,7 +20,7 @@ public class VaultEncryptDataRequest {
   }
 
   /**
-   * Specifies the base64 encoded context for key derivation. This is required if key derivation is
+   * @return Base64 encoded context for key derivation. This is required if key derivation is
    * enabled.
    */
   public String getContext() {
@@ -32,7 +32,7 @@ public class VaultEncryptDataRequest {
   }
 
   /**
-   * Specifies the version of the key to use for encryption. If not set, uses the latest version.
+   * @return Version of the key to use for encryption. If not set, uses the latest version.
    * Must be greater than or equal to the key's min_encryption_version, if set.
    */
   public int getKeyVersion() {
