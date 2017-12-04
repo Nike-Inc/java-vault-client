@@ -53,6 +53,17 @@ task copyProjectVersion() {
         ant.replace(file: "$buildDir/resources/main/java-vault-client.properties", token: "@@VAULT_CLIENT_RELEASE@@", value: releaseVersion)
     }
 }
+
+task resolveAllDependencies {
+    doLast {
+        configurations.all {
+            if (it.canBeResolved) {
+                it.resolve()
+            }
+        }
+    }
+}
+
 tasks.jar.dependsOn copyProjectVersion
 
 apply from: file('gradle/dependencies.gradle')
