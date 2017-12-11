@@ -12,19 +12,19 @@ public class VaultCreateKeyRequest {
   /**
    * ECDSA using the P-256 elliptic curve (asymmetric)
    */
-  public static final String TYPE_ACDSA_P256 = "ecdsa-p256 ";
+  public static final String TYPE_ACDSA_P256 = "ecdsa-p256";
   /**
    * ED25519 (asymmetric, supports derivation)
    */
-  public static final String TYPE_ED25519 = "ed25519 ";
+  public static final String TYPE_ED25519 = "ed25519";
   /**
    * RSA with bit size of 2048 (asymmetric)
    */
-  public static final String TYPE_RSA_2048 = "rsa-2048 ";
+  public static final String TYPE_RSA_2048 = "rsa-2048";
   /**
    * RSA with bit size of 4096 (asymmetric)
    */
-  public static final String TYPE_RSA_4096 = "rsa-4096 ";
+  public static final String TYPE_RSA_4096 = "rsa-4096";
 
   private boolean convergentEncryption;
   private boolean derived;
