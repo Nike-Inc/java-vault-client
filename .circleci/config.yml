@@ -1,43 +1,50 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
+cached_key: &cached_key gradle-cached-{{ checksum "build.gradle" }}
+
+default_job: &default_job
+  docker:
+    - image: circleci/openjdk:8-jdk
+
 version: 2
 jobs:
   build:
-    docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-    
+    <<: *default_job
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: gradle dependencies
-
+          key: *cached_key
+      - run: ./gradlew resolveAllDependencies
       - save_cache:
+          key: *cached_key
           paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-        
-      # run tests!
-      - run: gradle test
+            - ~/.gradle
+  test:
+    <<: *default_job
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cached_key
+      - run: ./gradlew test
+  deploy:
+    <<: *default_job
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cached_key
+      - run: ./gradlew publishToGithub
 
+# workflows
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - staging
