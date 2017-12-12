@@ -41,7 +41,9 @@ public class VaultClientFactory {
     public static final int DEFAULT_TIMEOUT = 15_000;
     public static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
 
-    /** Modify "MODERN_TLS" to remove TLS v1.0 and 1.1 */
+    /**
+     * Modify "MODERN_TLS" to remove TLS v1.0 and 1.1
+     */
     public static final ConnectionSpec TLS_1_2_OR_NEWER = new ConnectionSpec.Builder(MODERN_TLS)
             .tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2)
             .build();
@@ -104,6 +106,38 @@ public class VaultClientFactory {
     public static VaultClient getClient(final UrlResolver vaultUrlResolver,
                                         final VaultCredentialsProvider vaultCredentialsProvider,
                                         final Map<String, String> defaultHeaders) {
+
+        List<ConnectionSpec> connectionSpecs = new ArrayList<>();
+        connectionSpecs.add(TLS_1_2_OR_NEWER);
+        // for unit tests
+        connectionSpecs.add(CLEARTEXT);
+
+        return getClient(
+                vaultUrlResolver,
+                vaultCredentialsProvider,
+                defaultHeaders,
+                new OkHttpClient.Builder()
+                        .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                        .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                        .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
+                        .connectionSpecs(connectionSpecs)
+                        .build()
+        );
+    }
+
+    /**
+     * Factory method that allows a user to define the OkHttpClient to be used.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param defaultHeaders           Map of default header names and values to add to every HTTP request
+     * @param httpClient
+     * @return Vault client
+     */
+    public static VaultClient getClient(final UrlResolver vaultUrlResolver,
+                                        final VaultCredentialsProvider vaultCredentialsProvider,
+                                        final Map<String, String> defaultHeaders,
+                                        final OkHttpClient httpClient) {
         if (defaultHeaders == null) {
             throw new IllegalArgumentException("Default headers cannot be null.");
         }
@@ -113,19 +147,9 @@ public class VaultClientFactory {
             headers.add(header.getKey(), header.getValue());
         }
 
-        List<ConnectionSpec> connectionSpecs = new ArrayList<>();
-        connectionSpecs.add(TLS_1_2_OR_NEWER);
-        // for unit tests
-        connectionSpecs.add(CLEARTEXT);
-
         return new VaultClient(vaultUrlResolver,
                 vaultCredentialsProvider,
-                new OkHttpClient.Builder()
-                        .connectTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .writeTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .readTimeout(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT)
-                        .connectionSpecs(connectionSpecs)
-                        .build(),
+                httpClient,
                 headers.build());
     }
 
