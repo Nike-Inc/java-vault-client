@@ -152,10 +152,7 @@ public class VaultClient {
             parseAndThrowErrorResponse(response);
         }
 
-        final Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> rootData = parseResponseBody(response, mapType);
-        return gson.fromJson(gson.toJson(rootData.get("data")), VaultListResponse.class);
+        return parseResponse(response, VaultListResponse.class);
     }
 
     /**
@@ -234,10 +231,7 @@ public class VaultClient {
             parseAndThrowErrorResponse(response);
         }
 
-        final Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Object> rootData = parseResponseBody(response, mapType);
-        return gson.fromJson(gson.toJson(rootData.get("data")), VaultClientTokenResponse.class);
+        return parseResponse(response, VaultClientTokenResponse.class);
     }
 
     /**
@@ -405,6 +399,14 @@ public class VaultClient {
         }
     }
 
+    protected <T> T parseResponse(Response response, Class<T> responseType) {
+        final Type mapType = new TypeToken<Map<String, Object>>() {
+        }.getType();
+        final Map<String, Object> rootData = parseResponseBody(response, mapType);
+        return getGson()
+            .fromJson(getGson().toJson(rootData.get("data")), responseType);
+    }
+
     /**
      * POJO for representing error response body from Vault.
      */
@@ -423,5 +425,19 @@ public class VaultClient {
             logger.debug("responseBodyAsString: response={}", gson.toJson(response));
             return "ERROR failed to print response body as str: " + ioe.getMessage();
         }
+    }
+
+    /**
+     * Barebones method that can be used to make any call to Vault.  The caller is responsible for interpreting
+     * and de-serializing the response.  The Gson instance used by the client is accessible via {@link #getGson()}
+     *
+     * @param path        Path to the resource
+     * @param method      HTTP method
+     * @param requestBody Request body to be serialized as JSON.  Set to null if no request body
+     * @return HTTP response object
+     */
+    public Response execute(final String path, final String method, final Object requestBody) {
+        final HttpUrl url = buildUrl("", path);
+        return execute(url, method, requestBody);
     }
 }

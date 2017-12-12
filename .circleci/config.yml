@@ -1,0 +1,51 @@
+cached_key: &cached_key gradle-cached-{{ checksum "build.gradle" }}
+
+default_job: &default_job
+  docker:
+    - image: circleci/openjdk:8-jdk
+
+version: 2
+jobs:
+  build:
+    <<: *default_job
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cached_key
+      - run: ./gradlew resolveAllDependencies
+      - save_cache:
+          key: *cached_key
+          paths:
+            - ~/.gradle
+  test:
+    <<: *default_job
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cached_key
+      - run: ./gradlew test
+  deploy:
+    <<: *default_job
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cached_key
+      - run: ./gradlew publishToGithub
+
+# workflows
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - staging
+                - master

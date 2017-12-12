@@ -20,11 +20,32 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
+apply plugin: 'idea'
+apply plugin: 'git-repo'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+gitPublishConfig {
+    org = "LeapXpert"
+    repo = "lxp-artifacts"
+    branch = "master"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
+        }
+    }
+}
 
 task copyProjectVersion() {
     def releaseVersion = version
@@ -32,11 +53,21 @@ task copyProjectVersion() {
         ant.replace(file: "$buildDir/resources/main/java-vault-client.properties", token: "@@VAULT_CLIENT_RELEASE@@", value: releaseVersion)
     }
 }
+
+task resolveAllDependencies {
+    doLast {
+        configurations.all {
+            if (it.canBeResolved) {
+                it.resolve()
+            }
+        }
+    }
+}
+
 tasks.jar.dependsOn copyProjectVersion
 
 apply from: file('gradle/dependencies.gradle')
 apply from: file('gradle/check.gradle')
 apply from: file('gradle/integration.gradle')
-apply from: file('gradle/bintray.gradle')
 
 group = groupId

@@ -308,4 +308,187 @@ public class VaultClientFactory {
                         .build(),
                 headers.build());
     }
+
+
+
+
+    /**
+     * Basic factory method that will build a Vault admin client that
+     * looks up the Vault URL from one of the following places:
+     * <ul>
+     * <li>Environment Variable - <code>VAULT_ADDR</code></li>
+     * <li>Java System Property - <code>vault.addr</code></li>
+     * </ul>
+     * Default recommended credential provider and http client are used.
+     *
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient() {
+        return getCryptoClient(new DefaultVaultUrlResolver(),
+            new DefaultVaultCredentialsProviderChain(),
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_HEADERS
+        );
+    }
+
+    /**
+     * Factory method allows setting of the Vault URL resolver, but will use
+     * the default recommended credentials provider chain and http client.
+     *
+     * @param vaultUrlResolver URL resolver for Vault
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver) {
+        return getCryptoClient(vaultUrlResolver,
+            new DefaultVaultCredentialsProviderChain(),
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_HEADERS
+        );
+    }
+
+    /**
+     * Factory method that allows for a user defined Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver,
+        final VaultCredentialsProvider vaultCredentialsProvider) {
+        return getCryptoClient(vaultUrlResolver,
+            vaultCredentialsProvider,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_HEADERS
+        );
+    }
+
+    /**
+     * Factory method that allows for a user defined Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param maxRequestsPerHost       Max Requests per Host used by the dispatcher
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver,
+        final VaultCredentialsProvider vaultCredentialsProvider,
+        final int maxRequestsPerHost) {
+        return getCryptoClient(vaultUrlResolver,
+            vaultCredentialsProvider,
+            DEFAULT_MAX_REQUESTS,
+            maxRequestsPerHost,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_HEADERS);
+    }
+
+    /**
+     * Factory method that allows a user to define default HTTP headers to be added to every HTTP request made from the
+     * VaultClient. The user can also define their Vault URL resolver and credentials provider.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param defaultHeaders           Map of default header names and values to add to every HTTP request
+     * @return Vault client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver,
+        final VaultCredentialsProvider vaultCredentialsProvider,
+        final Map<String, String> defaultHeaders) {
+        return getCryptoClient(vaultUrlResolver,
+            vaultCredentialsProvider,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_MAX_REQUESTS,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            defaultHeaders);
+    }
+
+    /**
+     * Factory method that allows the user to completely configure the VaultClient.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param maxRequestsPerHost       Max Requests per Host used by the dispatcher
+     * @param defaultHeaders           Map of default header names and values to add to every HTTP request
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver,
+        final VaultCredentialsProvider vaultCredentialsProvider,
+        final int maxRequestsPerHost,
+        final Map<String, String> defaultHeaders) {
+        return getCryptoClient(vaultUrlResolver,
+            vaultCredentialsProvider,
+            DEFAULT_MAX_REQUESTS,
+            maxRequestsPerHost,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
+            defaultHeaders);
+    }
+
+    /**
+     * Factory method that allows the user to completely configure the VaultClient.
+     *
+     * @param vaultUrlResolver         URL resolver for Vault
+     * @param vaultCredentialsProvider Credential provider for acquiring a token for interacting with Vault
+     * @param maxRequests              Max HTTP Requests allowed in-flight
+     * @param maxRequestsPerHost       Max HTTP Requests per Host
+     * @param connectTimeoutMillis     HTTP connect timeout in milliseconds
+     * @param readTimeoutMillis        HTTP read timeout in milliseconds
+     * @param writeTimeoutMillis       HTTP write timeout in milliseconds
+     * @param defaultHeaders           Map of default header names and values to add to every HTTP request
+     * @return Vault admin client
+     */
+    public static VaultCryptoClient getCryptoClient(final UrlResolver vaultUrlResolver,
+        final VaultCredentialsProvider vaultCredentialsProvider,
+        final int maxRequests,
+        final int maxRequestsPerHost,
+        final int connectTimeoutMillis,
+        final int readTimeoutMillis,
+        final int writeTimeoutMillis,
+        final Map<String, String> defaultHeaders) {
+        if (defaultHeaders == null) {
+            throw new IllegalArgumentException("Default headers cannot be null.");
+        }
+
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(maxRequests);
+        dispatcher.setMaxRequestsPerHost(maxRequestsPerHost);
+
+
+        List<ConnectionSpec> connectionSpecs = new ArrayList<>();
+        connectionSpecs.add(TLS_1_2_OR_NEWER);
+        // for unit tests
+        connectionSpecs.add(CLEARTEXT);
+
+        Headers.Builder headers = new Headers.Builder();
+        for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
+            headers.add(header.getKey(), header.getValue());
+        }
+
+        return new VaultCryptoClient(vaultUrlResolver,
+            vaultCredentialsProvider,
+            new OkHttpClient.Builder()
+                .connectTimeout(connectTimeoutMillis, DEFAULT_TIMEOUT_UNIT)
+                .writeTimeout(writeTimeoutMillis, DEFAULT_TIMEOUT_UNIT)
+                .readTimeout(readTimeoutMillis, DEFAULT_TIMEOUT_UNIT)
+                .dispatcher(dispatcher)
+                .connectionSpecs(connectionSpecs)
+                .build(),
+            headers.build());
+    }
 }
