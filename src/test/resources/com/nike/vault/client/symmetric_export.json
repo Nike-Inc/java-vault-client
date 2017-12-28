@@ -1,0 +1,1 @@
+{"request_id":"4ce7d18e-deef-a633-eac2-766094a6558d","lease_id":"","renewable":false,"lease_duration":0,"data":{"keys":{"1":"1WTeJCE75wZs/hwrywrVrEUbB4UJXlsappeJHcPXNDY="},"name":"my-key-symmetric","type":"aes256-gcm96"},"wrap_info":null,"warnings":null,"auth":null}

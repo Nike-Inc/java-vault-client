@@ -12,6 +12,7 @@ import com.nike.vault.client.model.VaultDecryptDataRequest;
 import com.nike.vault.client.model.VaultDecryptDataResponse;
 import com.nike.vault.client.model.VaultEncryptDataRequest;
 import com.nike.vault.client.model.VaultEncryptDataResponse;
+import com.nike.vault.client.model.VaultKeyExportResponse;
 import com.nike.vault.client.model.VaultKeyResponse;
 import com.nike.vault.client.model.VaultSymmetricKeyResponse;
 import java.lang.reflect.Type;
@@ -25,6 +26,10 @@ import okhttp3.Response;
 public class VaultCryptoClient extends VaultClient {
 
   private static final String TRANSIT_PATH_PREFIX = "v1/transit/";
+
+  public static final String KEY_TYPE_ENCRYPTION_KEY = "encryption-key";
+  public static final String KEY_TYPE_SIGNING_KEY = "signing-key";
+  public static final String KEY_TYPE_HMAC_KEY = "hmac-key";
 
   /**
    * Explicit constructor that allows for full control over construction of the Vault client.
@@ -98,6 +103,25 @@ public class VaultCryptoClient extends VaultClient {
     }
 
   }
+
+  /**
+   * Retrieve key information
+   *
+   * @param name Name of the key to lookup
+   * @param type Type of key to export - KEY_TYPE_ENCRYPTION_KEY/KEY_TYPE_SIGNING_KEY/KEY_TYPE_HMAC_KEY
+   * @return Raw encryption key, if key was created with permission to export
+   */
+  public VaultKeyExportResponse exportKey(@Nonnull final String name, @Nonnull final String type) {
+    final HttpUrl url = buildUrl(TRANSIT_PATH_PREFIX, "export/" + type + "/" + name);
+    final Response response = execute(url, HttpMethod.GET, null);
+
+    if (response.code() != HttpStatus.OK) {
+      parseAndThrowErrorResponse(response);
+    }
+
+    return parseResponse(response, VaultKeyExportResponse.class);
+  }
+
 
   /**
    * Encrypt data with a key stored in Vault

@@ -13,6 +13,7 @@ import com.nike.vault.client.model.VaultDecryptDataRequest;
 import com.nike.vault.client.model.VaultDecryptDataResponse;
 import com.nike.vault.client.model.VaultEncryptDataRequest;
 import com.nike.vault.client.model.VaultEncryptDataResponse;
+import com.nike.vault.client.model.VaultKeyExportResponse;
 import com.nike.vault.client.model.VaultKeyResponse;
 import com.nike.vault.client.model.VaultSymmetricKeyResponse;
 import java.io.IOException;
@@ -46,6 +47,34 @@ public class VaultCryptoClientTest {
   @After
   public void teardown() throws IOException {
     mockWebServer.shutdown();
+  }
+
+  @Test
+  public void export_symmetric_returns_ok_if_created() {
+    final MockResponse response = new MockResponse();
+    response.setResponseCode(HttpStatus.OK);
+    response.setBody(getResponseJson("symmetric_export"));
+    mockWebServer.enqueue(response);
+
+    VaultKeyExportResponse actualResponse =
+        vaultClient.exportKey("test-key", VaultCryptoClient.KEY_TYPE_ENCRYPTION_KEY);
+
+    assertThat(actualResponse).isNotNull();
+    assertThat(actualResponse.getKeys().getKeyData()).isNotEmpty();
+  }
+
+  @Test
+  public void export_asymmetric_returns_ok_if_created() {
+    final MockResponse response = new MockResponse();
+    response.setResponseCode(HttpStatus.OK);
+    response.setBody(getResponseJson("asymmetric_export"));
+    mockWebServer.enqueue(response);
+
+    VaultKeyExportResponse actualResponse =
+        vaultClient.exportKey("test-key", VaultCryptoClient.KEY_TYPE_ENCRYPTION_KEY);
+
+    assertThat(actualResponse).isNotNull();
+    assertThat(actualResponse.getKeys().getKeyData()).isNotEmpty();
   }
 
   @Test
