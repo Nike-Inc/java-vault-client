@@ -122,6 +122,14 @@ public class VaultCryptoClient extends VaultClient {
     return parseResponse(response, VaultKeyExportResponse.class);
   }
 
+  public void deleteKey(@Nonnull final String name) {
+    final HttpUrl url = buildUrl(TRANSIT_PATH_PREFIX, "keys/" + name);
+    final Response response = execute(url, HttpMethod.DELETE, null);
+
+    if (response.code() != HttpStatus.NO_CONTENT) {
+      parseAndThrowErrorResponse(response);
+    }
+  }
 
   /**
    * Encrypt data with a key stored in Vault

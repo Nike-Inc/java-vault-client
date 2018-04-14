@@ -162,6 +162,16 @@ public class VaultCryptoClientTest {
     assertThat(actualResponse.getPlaintext()).isEqualTo("QWxsIHdlIGFyZSBidXQgc3BlY2tzIGluIGEgaHVnZSB1bml2ZXJzZSAuLi4=");
   }
 
+  @Test
+  public void delete_key_returns_204_when_successful() {
+    final MockResponse response = new MockResponse();
+    response.setResponseCode(HttpStatus.NO_CONTENT);
+    mockWebServer.enqueue(response);
+
+    vaultClient.deleteKey("test-key");
+    // Silence is success!
+  }
+
   private String getResponseJson(final String title) {
     InputStream inputStream = getClass().getResourceAsStream(
         String.format("/com/nike/vault/client/%s.json", title));
